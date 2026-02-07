@@ -1,0 +1,18 @@
+# Lintel Terraform Plan Check — include in your .gitlab-ci.yml or use as a template
+
+lintel-terraform:
+  image:
+    name: hashicorp/terraform:latest
+    entrypoint: [""]
+  before_script:
+    - terraform init
+    - terraform plan -out=plan.out
+    - terraform show -json plan.out > plan.json
+  script:
+    - |
+      curl -sS https://api.lintelapi.com/v1/inspect/terraform-plan \
+        -H "Authorization: Bearer $LINTEL_API_KEY" \
+        -H "Content-Type: application/json" \
+        --data-binary @plan.json | jq .
+  variables:
+    LINTEL_API_KEY: $LINTEL_API_KEY

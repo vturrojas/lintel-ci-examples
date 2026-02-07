@@ -1,0 +1,32 @@
+name: Lintel Terraform Plan Check
+
+on:
+  pull_request:
+
+jobs:
+  lintel:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Plan
+        run: terraform plan -out=plan.out
+
+      - name: Convert plan to JSON
+        run: terraform show -json plan.out > plan.json
+
+      - name: Lintel inspection
+        env:
+          LINTEL_API_KEY: ${{ secrets.LINTEL_API_KEY }}
+        run: |
+          curl -sS https://api.lintelapi.com/v1/inspect/terraform-plan \
+            -H "Authorization: Bearer $LINTEL_API_KEY" \
+            -H "Content-Type: application/json" \
+            --data-binary @plan.json | jq .

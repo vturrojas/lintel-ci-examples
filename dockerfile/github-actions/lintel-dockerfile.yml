@@ -1,0 +1,24 @@
+name: Lintel Dockerfile Check
+
+on:
+  pull_request:
+
+jobs:
+  lintel:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare Dockerfile payload
+        run: |
+          jq -Rs '{dockerfile: .}' Dockerfile > dockerfile.json
+
+      - name: Lintel inspection
+        env:
+          LINTEL_API_KEY: ${{ secrets.LINTEL_API_KEY }}
+        run: |
+          curl -sS https://api.lintelapi.com/v1/inspect/dockerfile \
+            -H "Authorization: Bearer $LINTEL_API_KEY" \
+            -H "Content-Type: application/json" \
+            --data-binary @dockerfile.json | jq .
