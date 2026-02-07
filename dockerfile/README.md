@@ -1,10 +1,9 @@
 # Dockerfile Security Linter
 
-Lintel inspects Dockerfiles for insecure defaults and unsafe patterns.
+Lintel analyzes Dockerfiles for insecure defaults and unsafe patterns.
 
 ## Input format
-
-Dockerfiles are sent as JSON:
+This endpoint expects JSON:
 
 ```json
 {
@@ -12,14 +11,23 @@ Dockerfiles are sent as JSON:
 }
 ```
 
-### jq helper
-
+## jq helper
 Convert an existing Dockerfile to JSON:
 
 ```bash
 jq -Rs '{dockerfile: .}' Dockerfile > dockerfile.json
 ```
 
-## Example
+## API
+POST https://api.lintelapi.com/v1/inspect/dockerfile
 
-See [GitHub Actions](github-actions/lintel-dockerfile.yml).
+## Minimal curl
+```bash
+curl -sS https://api.lintelapi.com/v1/inspect/dockerfile \
+  -H "Authorization: Bearer $LINTEL_API_KEY" \
+  -H "Content-Type: application/json" \
+  --data-binary @dockerfile.json | jq .
+```
+
+## CI example
+- GitHub Actions: dockerfile/github-actions/lintel-dockerfile.yml

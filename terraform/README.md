@@ -2,25 +2,25 @@
 
 Lintel inspects Terraform plan JSON and returns deterministic security and operational findings **before apply**.
 
-## Requirements
+## Input
+Generate plan JSON:
 
-- Terraform ≥ 1.x
-- API key from Lintel
+```bash
+terraform plan -out=plan.out
+terraform show -json plan.out > plan.json
+```
 
-## Flow
+## API
+POST https://api.lintelapi.com/v1/inspect/terraform-plan
 
-1. Generate a plan
-2. Convert plan to JSON
-3. Send JSON to Lintel
-4. Review findings
-5. Decide what to do (Lintel does not enforce)
+## Minimal curl
+```bash
+curl -sS https://api.lintelapi.com/v1/inspect/terraform-plan \
+  -H "Authorization: Bearer $LINTEL_API_KEY" \
+  -H "Content-Type: application/json" \
+  --data-binary @plan.json | jq .
+```
 
-## Examples
-
-- [GitHub Actions](github-actions/lintel-terraform.yml)
-- [GitLab CI](gitlab-ci/lintel-terraform.gitlab-ci.yml)
-
-Each example:
-- Fails fast on API errors
-- Prints JSON results to logs
-- Does not block by default
+## CI examples
+- GitHub Actions: terraform/github-actions/lintel-terraform.yml
+- GitLab CI: terraform/gitlab-ci/lintel-terraform.gitlab-ci.yml
